@@ -3,7 +3,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cache } from '@/lib/cache';
 import { apiFootballClient } from '@/lib/api-clients/api-football';
-import { TeamBriefResponse } from '@/lib/types';
+import { transfermarktClient } from '@/lib/api-clients/transfermarkt';
+import { transformTransfermarktData } from '@/lib/transferUtils';
+import { TeamBriefResponse, TransferMarketData } from '@/lib/types';
 import { selectPlayerToWatch, PlayerWithStats } from '@/lib/formScore';
 import { generateMatchupNotes, generatePlayerReasoning } from '@/lib/ai';
 
@@ -141,6 +143,20 @@ export async function GET(request: NextRequest) {
       generatePlayerReasoning(aiPromptData),
     ]);
 
+    // Fetch transfer data for the player (non-blocking - graceful degradation)
+    let transferData: TransferMarketData | null = null;
+    try {
+      const playerData = await transfermarktClient.getPlayerData(playerToWatch.player.name);
+      
+      if (playerData) {
+        // Transform using utility function
+        transferData = transformTransfermarktData(playerData);
+      }
+    } catch (transferError) {
+      console.warn('Failed to fetch transfer data, continuing without it:', transferError);
+      // Continue without transfer data - graceful degradation
+    }
+
     // Build response
     const response: TeamBriefResponse = {
       team: {
@@ -170,6 +186,7 @@ export async function GET(request: NextRequest) {
         confidence: playerToWatch.confidence,
       },
       matchupNotes,
+      transferData,
       metadata: {
         cachedAt: new Date().toISOString(),
         dataFreshness: 'Live',

@@ -4,13 +4,16 @@ import React from 'react';
 import { Card } from './ui/Card';
 import { StatBadge } from './ui/StatBadge';
 import { ConfidenceBadge } from './ui/ConfidenceBadge';
+import { TransferValueBadge } from './TransferValueBadge';
+import { LoanStatusBadge } from './LoanStatusBadge';
 import { TeamBriefResponse } from '@/lib/types';
 
 interface PlayerToWatchCardProps {
   playerData: TeamBriefResponse['playerToWatch'];
+  transferData?: TeamBriefResponse['transferData'];
 }
 
-export function PlayerToWatchCard({ playerData }: PlayerToWatchCardProps) {
+export function PlayerToWatchCard({ playerData, transferData }: PlayerToWatchCardProps) {
   const { player, stats, formScore, aiReasoning, confidence } = playerData;
 
   return (
@@ -31,9 +34,20 @@ export function PlayerToWatchCard({ playerData }: PlayerToWatchCardProps) {
           <div className="text-accent font-medium">
             #{player.number} • {player.position}
           </div>
+          {transferData?.marketValue && (
+            <div className="mt-2">
+              <TransferValueBadge
+                value={transferData.marketValue.current}
+                trend={transferData.marketValue.trend}
+              />
+            </div>
+          )}
           <div className="mt-2 text-sm text-gray-400">
             FormScore: <span className="text-accent font-bold">{formScore}</span>
           </div>
+          {transferData?.loanStatus?.isOnLoan && (
+            <LoanStatusBadge loanStatus={transferData.loanStatus} />
+          )}
         </div>
       </div>
 
