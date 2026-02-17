@@ -16,14 +16,16 @@ export function calculateFormScore(stats: PlayerStats): number {
   score += stats.keyPasses * 1;
 
   // Minutes consistency bonus
-  const avgMinutes = stats.minutesPlayed / stats.gamesPlayed;
-  
-  if (avgMinutes >= 70 && stats.gamesPlayed >= 4) {
-    // +3 if played ≥70 mins in 4+ of last 5
-    score += 3;
-  } else if (avgMinutes >= 60 && stats.gamesPlayed >= 3) {
-    // +1 if played ≥60 mins in 3+ of last 5
-    score += 1;
+  if (stats.gamesPlayed > 0) {
+    const avgMinutes = stats.minutesPlayed / stats.gamesPlayed;
+    
+    if (avgMinutes >= 70 && stats.gamesPlayed >= 4) {
+      // +3 if played ≥70 mins in 4+ of last 5
+      score += 3;
+    } else if (avgMinutes >= 60 && stats.gamesPlayed >= 3) {
+      // +1 if played ≥60 mins in 3+ of last 5
+      score += 1;
+    }
   }
 
   return score;

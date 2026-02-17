@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
               shotsOnTarget: Number((stats?.shots as Record<string, unknown>)?.on) || 0,
               keyPasses: Number((stats?.passes as Record<string, unknown>)?.key) || 0,
               minutesPlayed: Number((stats?.games as Record<string, unknown>)?.minutes) || 0,
-              gamesPlayed: Number((stats?.games as Record<string, unknown>)?.appearences) || 0,
+              gamesPlayed: Number((stats?.games as Record<string, unknown>)?.appearances) || 0,
             },
           };
         })

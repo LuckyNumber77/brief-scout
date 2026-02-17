@@ -6,13 +6,16 @@ import { useDebounce } from 'use-debounce';
 import { TeamSearchResult } from '@/lib/types';
 import { clientCache } from '@/lib/clientCache';
 
+const DEBOUNCE_DELAY_MS = 600;
+const SEARCH_CACHE_TTL_SECONDS = 600; // 10 minutes
+
 interface TeamSearchProps {
   onTeamSelect: (teamId: string) => void;
 }
 
 export function TeamSearch({ onTeamSelect }: TeamSearchProps) {
   const [query, setQuery] = useState('');
-  const [debouncedQuery] = useDebounce(query, 600);
+  const [debouncedQuery] = useDebounce(query, DEBOUNCE_DELAY_MS);
   const [results, setResults] = useState<TeamSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -45,7 +48,7 @@ export function TeamSearch({ onTeamSelect }: TeamSearchProps) {
         setShowDropdown(true);
         
         // Cache for 10 minutes
-        clientCache.set(cacheKey, data.results, 600);
+        clientCache.set(cacheKey, data.results, SEARCH_CACHE_TTL_SECONDS);
       }
     } catch (error) {
       console.error('Search error:', error);

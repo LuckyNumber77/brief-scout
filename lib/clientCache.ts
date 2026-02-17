@@ -19,7 +19,7 @@ export class ClientCache {
     try {
       localStorage.setItem(key, JSON.stringify(entry));
     } catch (error) {
-      console.error('Failed to save to localStorage:', error);
+      console.error('Failed to save to localStorage:', key, error);
     }
   }
 
@@ -42,7 +42,7 @@ export class ClientCache {
 
       return entry.data;
     } catch (error) {
-      console.error('Failed to read from localStorage:', error);
+      console.error('Failed to read from localStorage:', key, error);
       return null;
     }
   }
@@ -76,7 +76,7 @@ export class ClientCache {
     try {
       localStorage.removeItem(key);
     } catch (error) {
-      console.error('Failed to delete from localStorage:', error);
+      console.error('Failed to delete from localStorage:', key, error);
     }
   }
 

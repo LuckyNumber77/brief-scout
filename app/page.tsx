@@ -6,6 +6,8 @@ import { TeamBrief } from '@/components/TeamBrief';
 import { TeamBriefResponse } from '@/lib/types';
 import { clientCache } from '@/lib/clientCache';
 
+const BRIEF_CACHE_TTL_SECONDS = 3600; // 1 hour
+
 export default function Home() {
   const [briefData, setBriefData] = useState<TeamBriefResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -37,7 +39,7 @@ export default function Home() {
       setBriefData(data);
       
       // Cache for 1 hour
-      clientCache.set(cacheKey, data, 3600);
+      clientCache.set(cacheKey, data, BRIEF_CACHE_TTL_SECONDS);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       setBriefData(null);
