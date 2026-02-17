@@ -31,15 +31,15 @@ export async function GET(request: NextRequest) {
 
     // Try SportsAPIPro first
     try {
-      const response = await sportsAPIProClient.searchTeams(query);
+      const response = await sportsAPIProClient.searchTeams(query) as { data?: Array<Record<string, unknown>> };
       
       if (response && response.data && Array.isArray(response.data)) {
-        teams = response.data.slice(0, 10).map((team: any) => ({
-          team_id: team.id?.toString() || team.team_id?.toString(),
-          name: team.name || team.team_name,
-          logo: team.logo || team.team_logo || '',
-          league: team.league?.name || team.league_name || 'Unknown',
-          country: team.country?.name || team.country_name || 'Unknown',
+        teams = response.data.slice(0, 10).map((team: Record<string, unknown>) => ({
+          team_id: team.id?.toString() || team.team_id?.toString() || '0',
+          name: (team.name || team.team_name || 'Unknown') as string,
+          logo: (team.logo || team.team_logo || '') as string,
+          league: ((team.league as Record<string, unknown>)?.name || (team.league_name || 'Unknown')) as string,
+          country: ((team.country as Record<string, unknown>)?.name || (team.country_name || 'Unknown')) as string,
         }));
       }
     } catch (sportsError) {
@@ -47,15 +47,15 @@ export async function GET(request: NextRequest) {
 
       // Fallback to API-Football
       try {
-        const response = await apiFootballClient.searchTeams(query);
+        const response = await apiFootballClient.searchTeams(query) as { response?: Array<Record<string, unknown>> };
         
         if (response && response.response && Array.isArray(response.response)) {
-          teams = response.response.slice(0, 10).map((item: any) => ({
-            team_id: item.team?.id?.toString(),
-            name: item.team?.name,
-            logo: item.team?.logo || '',
-            league: item.league?.name || 'Unknown',
-            country: item.league?.country || 'Unknown',
+          teams = response.response.slice(0, 10).map((item: Record<string, unknown>) => ({
+            team_id: ((item.team as Record<string, unknown>)?.id?.toString() || '0'),
+            name: ((item.team as Record<string, unknown>)?.name || 'Unknown') as string,
+            logo: ((item.team as Record<string, unknown>)?.logo || '') as string,
+            league: ((item.league as Record<string, unknown>)?.name || 'Unknown') as string,
+            country: ((item.league as Record<string, unknown>)?.country || 'Unknown') as string,
           }));
         }
       } catch (footballError) {

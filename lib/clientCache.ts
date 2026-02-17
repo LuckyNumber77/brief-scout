@@ -57,7 +57,7 @@ export class ClientCache {
         return false;
       }
 
-      const entry: CacheEntry<any> = JSON.parse(item);
+      const entry: CacheEntry<unknown> = JSON.parse(item);
 
       if (Date.now() > entry.expiresAt) {
         this.delete(key);
@@ -65,7 +65,7 @@ export class ClientCache {
       }
 
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }

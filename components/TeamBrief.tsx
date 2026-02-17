@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { TeamBriefResponse } from '@/lib/types';
 import { NextMatchCard } from './NextMatchCard';
 import { PlayerToWatchCard } from './PlayerToWatchCard';
@@ -52,11 +53,14 @@ export function TeamBrief({ data, loading, error }: TeamBriefProps) {
     <div className="w-full max-w-6xl mx-auto space-y-6">
       <div className="flex items-center space-x-4 mb-6">
         {data.team.logo && (
-          <img
-            src={data.team.logo}
-            alt={data.team.name}
-            className="w-16 h-16 object-contain"
-          />
+          <div className="relative w-16 h-16">
+            <Image
+              src={data.team.logo}
+              alt={data.team.name}
+              fill
+              className="object-contain"
+            />
+          </div>
         )}
         <h1 className="text-3xl font-bold text-white">{data.team.name}</h1>
       </div>

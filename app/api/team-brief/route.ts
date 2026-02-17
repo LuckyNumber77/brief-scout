@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     // Get next fixture
     apiCallsMade++;
-    const nextFixtureResponse = await apiFootballClient.getNextFixtures(teamId);
+    const nextFixtureResponse = await apiFootballClient.getNextFixtures(teamId) as { response?: Array<unknown> };
     
     if (!nextFixtureResponse?.response || nextFixtureResponse.response.length === 0) {
       return NextResponse.json(
@@ -44,16 +44,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const nextFixture = nextFixtureResponse.response[0];
-    const fixtureData = nextFixture.fixture;
-    const teamsData = nextFixture.teams;
-    const leagueData = nextFixture.league;
+    const nextFixture = nextFixtureResponse.response[0] as Record<string, unknown>;
+    const fixtureData = nextFixture.fixture as Record<string, unknown>;
+    const teamsData = nextFixture.teams as Record<string, Record<string, unknown>>;
+    const leagueData = nextFixture.league as Record<string, unknown>;
 
     // Get last 5 fixtures for team form
     apiCallsMade++;
-    const last5Response = await apiFootballClient.getTeamFixtures(teamId, 5);
+    const last5Response = await apiFootballClient.getTeamFixtures(teamId, 5) as { response?: Array<Record<string, unknown>> };
     
-    let teamForm = {
+    const teamForm = {
       last5: '',
       goalsFor: 0,
       goalsAgainst: 0,
@@ -62,9 +62,12 @@ export async function GET(request: NextRequest) {
     if (last5Response?.response && Array.isArray(last5Response.response)) {
       const formArray: string[] = [];
       
-      for (const match of last5Response.response.slice(0, 5).reverse()) {
+      for (const matchRaw of last5Response.response.slice(0, 5).reverse()) {
+        const match = matchRaw as {
+          teams?: { home?: { id?: number | string }; away?: { id?: number | string } };
+          goals?: { home?: number; away?: number };
+        };
         const homeTeam = match.teams?.home;
-        const awayTeam = match.teams?.away;
         const isHome = homeTeam?.id?.toString() === teamId;
         const teamGoals = isHome ? match.goals?.home : match.goals?.away;
         const opponentGoals = isHome ? match.goals?.away : match.goals?.home;
@@ -72,7 +75,7 @@ export async function GET(request: NextRequest) {
         teamForm.goalsFor += teamGoals || 0;
         teamForm.goalsAgainst += opponentGoals || 0;
 
-        if (teamGoals > opponentGoals) {
+        if ((teamGoals || 0) > (opponentGoals || 0)) {
           formArray.push('W');
         } else if (teamGoals === opponentGoals) {
           formArray.push('D');
@@ -87,32 +90,33 @@ export async function GET(request: NextRequest) {
     // Get team players with stats for current season
     const currentSeason = new Date().getFullYear();
     apiCallsMade++;
-    const playersResponse = await apiFootballClient.getTeamPlayers(teamId, currentSeason);
+    const playersResponse = await apiFootballClient.getTeamPlayers(teamId, currentSeason) as { response?: Array<Record<string, unknown>> };
 
     let playerToWatch: TeamBriefResponse['playerToWatch'] | null = null;
 
     if (playersResponse?.response && Array.isArray(playersResponse.response)) {
       const candidates: PlayerCandidate[] = playersResponse.response
         .slice(0, 20)
-        .map((item: any) => {
-          const player = item.player;
-          const stats = item.statistics?.[0]; // Take first league stats
+        .map((item: Record<string, unknown>) => {
+          const player = item.player as Record<string, unknown>;
+          const statsArray = item.statistics as Array<Record<string, unknown>> | undefined;
+          const stats = statsArray?.[0]; // Take first league stats
 
           return {
             player: {
               id: player?.id?.toString() || '',
-              name: player?.name || 'Unknown',
-              position: player?.position || 'Unknown',
-              number: player?.number || 0,
-              photo: player?.photo || '',
+              name: player?.name?.toString() || 'Unknown',
+              position: player?.position?.toString() || 'Unknown',
+              number: Number(player?.number) || 0,
+              photo: player?.photo?.toString() || '',
             },
             stats: {
-              goals: stats?.goals?.total || 0,
-              assists: stats?.goals?.assists || 0,
-              shotsOnTarget: stats?.shots?.on || 0,
-              keyPasses: stats?.passes?.key || 0,
-              minutesPlayed: stats?.games?.minutes || 0,
-              gamesPlayed: stats?.games?.appearences || 0,
+              goals: Number((stats?.goals as Record<string, unknown>)?.total) || 0,
+              assists: Number((stats?.goals as Record<string, unknown>)?.assists) || 0,
+              shotsOnTarget: Number((stats?.shots as Record<string, unknown>)?.on) || 0,
+              keyPasses: Number((stats?.passes as Record<string, unknown>)?.key) || 0,
+              minutesPlayed: Number((stats?.games as Record<string, unknown>)?.minutes) || 0,
+              gamesPlayed: Number((stats?.games as Record<string, unknown>)?.appearences) || 0,
             },
           };
         })
@@ -134,12 +138,14 @@ export async function GET(request: NextRequest) {
         const confidence = calculateConfidence(bestPlayer.stats);
 
         // Get AI analysis
-        const teamName = teamsData.home.id.toString() === teamId 
-          ? teamsData.home.name 
-          : teamsData.away.name;
-        const opponentName = teamsData.home.id.toString() === teamId 
-          ? teamsData.away.name 
-          : teamsData.home.name;
+        const homeTeam = teamsData.home as Record<string, unknown>;
+        const awayTeam = teamsData.away as Record<string, unknown>;
+        const teamName = homeTeam.id?.toString() === teamId 
+          ? homeTeam.name?.toString() || 'Unknown'
+          : awayTeam.name?.toString() || 'Unknown';
+        const opponentName = homeTeam.id?.toString() === teamId 
+          ? awayTeam.name?.toString() || 'Unknown'
+          : homeTeam.name?.toString() || 'Unknown';
 
         const aiAnalysis = await generateAIAnalysis(
           {
@@ -156,7 +162,7 @@ export async function GET(request: NextRequest) {
             },
           },
           teamId,
-          fixtureData.id.toString()
+          fixtureData.id?.toString() || 'unknown'
         );
 
         playerToWatch = {
@@ -193,15 +199,18 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    const teamName = teamsData.home.id.toString() === teamId 
-      ? teamsData.home.name 
-      : teamsData.away.name;
-    const teamLogo = teamsData.home.id.toString() === teamId 
-      ? teamsData.home.logo 
-      : teamsData.away.logo;
-    const opponentName = teamsData.home.id.toString() === teamId 
-      ? teamsData.away.name 
-      : teamsData.home.name;
+    const homeTeam = teamsData.home as Record<string, unknown>;
+    const awayTeam = teamsData.away as Record<string, unknown>;
+    
+    const teamName = homeTeam.id?.toString() === teamId 
+      ? homeTeam.name?.toString() || 'Unknown'
+      : awayTeam.name?.toString() || 'Unknown';
+    const teamLogo = homeTeam.id?.toString() === teamId 
+      ? homeTeam.logo?.toString() || ''
+      : awayTeam.logo?.toString() || '';
+    const opponentName = homeTeam.id?.toString() === teamId 
+      ? awayTeam.name?.toString() || 'Unknown'
+      : homeTeam.name?.toString() || 'Unknown';
 
     let matchupNotes = '';
     
@@ -221,7 +230,7 @@ export async function GET(request: NextRequest) {
           },
         },
         teamId,
-        fixtureData.id.toString()
+        fixtureData.id?.toString() || 'unknown'
       );
       matchupNotes = aiAnalysis.matchupNotes;
     } else {
@@ -235,13 +244,13 @@ export async function GET(request: NextRequest) {
         logo: teamLogo,
       },
       nextFixture: {
-        id: fixtureData.id.toString(),
-        date: new Date(fixtureData.date).toLocaleDateString(),
-        time: new Date(fixtureData.date).toLocaleTimeString(),
-        venue: fixtureData.venue?.name || 'TBD',
-        home: teamsData.home.name,
-        away: teamsData.away.name,
-        competition: leagueData.name,
+        id: fixtureData.id?.toString() || '0',
+        date: new Date(fixtureData.date as string).toLocaleDateString(),
+        time: new Date(fixtureData.date as string).toLocaleTimeString(),
+        venue: ((fixtureData.venue as Record<string, unknown>)?.name as string) || 'TBD',
+        home: homeTeam.name?.toString() || 'Unknown',
+        away: awayTeam.name?.toString() || 'Unknown',
+        competition: leagueData.name?.toString() || 'Unknown',
       },
       teamForm,
       playerToWatch,

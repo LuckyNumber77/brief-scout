@@ -15,7 +15,7 @@ export class SportsAPIProClient {
     });
   }
 
-  async searchTeams(query: string): Promise<any> {
+  async searchTeams(query: string): Promise<unknown> {
     try {
       apiMonitor.track('sportsapipro');
       const response = await this.client.get('/teams', {
@@ -28,7 +28,7 @@ export class SportsAPIProClient {
     }
   }
 
-  async getTeamFixtures(teamId: string): Promise<any> {
+  async getTeamFixtures(teamId: string): Promise<unknown> {
     try {
       apiMonitor.track('sportsapipro');
       const response = await this.client.get(`/teams/${teamId}/fixtures`);
@@ -39,7 +39,7 @@ export class SportsAPIProClient {
     }
   }
 
-  async getTeamStats(teamId: string): Promise<any> {
+  async getTeamStats(teamId: string): Promise<unknown> {
     try {
       apiMonitor.track('sportsapipro');
       const response = await this.client.get(`/teams/${teamId}/statistics`);

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
+import Image from 'next/image';
 import { useDebounce } from 'use-debounce';
 import { TeamSearchResult } from '@/lib/types';
 import { clientCache } from '@/lib/clientCache';
@@ -91,11 +92,14 @@ export function TeamSearch({ onTeamSelect }: TeamSearchProps) {
               className="w-full px-6 py-4 text-left hover:bg-background transition-all duration-200 flex items-center space-x-4"
             >
               {team.logo && (
-                <img
-                  src={team.logo}
-                  alt={team.name}
-                  className="w-10 h-10 object-contain"
-                />
+                <div className="relative w-10 h-10">
+                  <Image
+                    src={team.logo}
+                    alt={team.name}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
               )}
               <div className="flex-1">
                 <div className="text-white font-medium">{team.name}</div>

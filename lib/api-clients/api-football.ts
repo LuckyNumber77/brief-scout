@@ -15,7 +15,7 @@ export class APIFootballClient {
     });
   }
 
-  async searchTeams(query: string): Promise<any> {
+  async searchTeams(query: string): Promise<unknown> {
     try {
       apiMonitor.track('api-football');
       const response = await this.client.get('/teams', {
@@ -28,7 +28,7 @@ export class APIFootballClient {
     }
   }
 
-  async getTeamFixtures(teamId: string, last: number = 5): Promise<any> {
+  async getTeamFixtures(teamId: string, last: number = 5): Promise<unknown> {
     try {
       apiMonitor.track('api-football');
       const response = await this.client.get('/fixtures', {
@@ -44,7 +44,7 @@ export class APIFootballClient {
     }
   }
 
-  async getNextFixtures(teamId: string): Promise<any> {
+  async getNextFixtures(teamId: string): Promise<unknown> {
     try {
       apiMonitor.track('api-football');
       const response = await this.client.get('/fixtures', {
@@ -60,7 +60,7 @@ export class APIFootballClient {
     }
   }
 
-  async getPlayerStats(playerId: string, season: number): Promise<any> {
+  async getPlayerStats(playerId: string, season: number): Promise<unknown> {
     try {
       apiMonitor.track('api-football');
       const response = await this.client.get('/players', {
@@ -76,7 +76,7 @@ export class APIFootballClient {
     }
   }
 
-  async getTeamPlayers(teamId: string, season: number): Promise<any> {
+  async getTeamPlayers(teamId: string, season: number): Promise<unknown> {
     try {
       apiMonitor.track('api-football');
       const response = await this.client.get('/players', {
