@@ -45,7 +45,7 @@ export function PlayerToWatchCard({ playerData, transferData }: PlayerToWatchCar
           <div className="mt-2 text-sm text-gray-400">
             FormScore: <span className="text-accent font-bold">{formScore}</span>
           </div>
-          {transferData?.loanStatus && (
+          {transferData?.loanStatus?.isOnLoan && (
             <LoanStatusBadge loanStatus={transferData.loanStatus} />
           )}
         </div>

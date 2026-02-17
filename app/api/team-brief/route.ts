@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cache } from '@/lib/cache';
 import { apiFootballClient } from '@/lib/api-clients/api-football';
 import { transfermarktClient } from '@/lib/api-clients/transfermarkt';
+import { transformTransfermarktData } from '@/lib/transferUtils';
 import { TeamBriefResponse, TransferMarketData } from '@/lib/types';
 import { selectPlayerToWatch, PlayerWithStats } from '@/lib/formScore';
 import { generateMatchupNotes, generatePlayerReasoning } from '@/lib/ai';
@@ -148,55 +149,8 @@ export async function GET(request: NextRequest) {
       const playerData = await transfermarktClient.getPlayerData(playerToWatch.player.name);
       
       if (playerData) {
-        // Transform to API format
-        const transferHistory = playerData.transferHistory
-          .slice(0, 5)
-          .map(transfer => ({
-            date: transfer.date,
-            from: transfer.fromClub,
-            fromLogo: undefined,
-            to: transfer.toClub,
-            toLogo: undefined,
-            fee: transfer.fee,
-            marketValueAtTime: transfer.marketValue,
-            type: transfer.loan ? ('Loan' as const) : ('Permanent' as const),
-          }));
-
-        const currentLoan = playerData.transferHistory.find(
-          t => t.loan && t.toClub === playerData.currentClub
-        );
-
-        const contractExpiry = new Date(playerData.contractExpiry);
-        const now = new Date();
-        const yearsRemaining = Math.max(0, (contractExpiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365));
-
-        transferData = {
-          marketValue: {
-            current: playerData.marketValue,
-            currency: 'EUR',
-            numeric: playerData.marketValueNumeric,
-            trend: undefined,
-          },
-          transferHistory,
-          loanStatus: {
-            isOnLoan: !!currentLoan,
-            loanedFrom: currentLoan?.fromClub,
-            loanedTo: currentLoan?.toClub,
-            loanEnd: undefined,
-            buyOption: undefined,
-          },
-          contract: {
-            club: playerData.currentClub,
-            expires: playerData.contractExpiry,
-            yearsRemaining: Math.round(yearsRemaining * 10) / 10,
-          },
-          recentNews: playerData.news?.slice(0, 5).map(item => ({
-            headline: item.title,
-            date: item.date,
-            source: item.source,
-            url: undefined,
-          })) || [],
-        };
+        // Transform using utility function
+        transferData = transformTransfermarktData(playerData);
       }
     } catch (transferError) {
       console.warn('Failed to fetch transfer data, continuing without it:', transferError);

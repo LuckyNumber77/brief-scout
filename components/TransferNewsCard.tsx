@@ -63,10 +63,6 @@ export function TransferNewsCard({ news }: TransferNewsCardProps) {
           </div>
         ))}
       </div>
-
-      {news.length === 0 && (
-        <p className="text-gray-400 text-sm text-center py-4">No recent transfer news available</p>
-      )}
     </Card>
   );
 }
