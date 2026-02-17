@@ -1,0 +1,3 @@
+# Brief Scout
+
+AI-powered football player scouting app - Initial setup in progress...
