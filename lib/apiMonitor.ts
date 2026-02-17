@@ -45,13 +45,13 @@ class APIMonitor {
   getAllUsage(): Record<string, number> {
     const result: Record<string, number> = {};
 
-    for (const [provider, usage] of this.usage.entries()) {
+    this.usage.forEach((usage, provider) => {
       if (this.shouldReset(usage.lastReset)) {
         result[provider] = 0;
       } else {
         result[provider] = usage.count;
       }
-    }
+    });
 
     return result;
   }
