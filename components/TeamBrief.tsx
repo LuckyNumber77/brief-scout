@@ -8,6 +8,8 @@ import { clientCache } from '@/lib/clientCache';
 import { NextMatchCard } from './NextMatchCard';
 import { PlayerToWatchCard } from './PlayerToWatchCard';
 import { MatchupNotesCard } from './MatchupNotesCard';
+import { TransferHistoryCard } from './TransferHistoryCard';
+import { TransferNewsCard } from './TransferNewsCard';
 
 interface TeamBriefProps {
   teamId: string;
@@ -100,12 +102,23 @@ export function TeamBrief({ teamId }: TeamBriefProps) {
         teamForm={brief.teamForm}
       />
 
-      <PlayerToWatchCard playerData={brief.playerToWatch} />
+      <PlayerToWatchCard 
+        playerData={brief.playerToWatch}
+        transferData={brief.transferData}
+      />
+
+      {brief.transferData?.transferHistory && brief.transferData.transferHistory.length > 0 && (
+        <TransferHistoryCard transfers={brief.transferData.transferHistory} />
+      )}
 
       <MatchupNotesCard
         notes={brief.matchupNotes}
         cachedAt={brief.metadata.cachedAt}
       />
+
+      {brief.transferData?.recentNews && brief.transferData.recentNews.length > 0 && (
+        <TransferNewsCard news={brief.transferData.recentNews} />
+      )}
     </div>
   );
 }

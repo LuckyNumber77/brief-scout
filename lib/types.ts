@@ -49,6 +49,7 @@ export interface TeamBriefResponse {
     confidence: "High" | "Medium" | "Low";
   };
   matchupNotes: string;
+  transferData?: TransferMarketData | null;
   metadata: {
     cachedAt: string;
     dataFreshness: "Live" | "Cached";
