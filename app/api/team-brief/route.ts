@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
             shotsOnTarget: mainStats.shots.on || 0,
             keyPasses: mainStats.passes.key || 0,
             minutesPlayed: mainStats.games.minutes || 0,
-            gamesPlayed: mainStats.games.appearences || 0,
+            gamesPlayed: mainStats.games.appearances || 0,
           },
           last5Minutes: [90, 90, 90, 90, 85], // Mock data - would need detailed match stats
         };

@@ -22,12 +22,14 @@ export function calculateFormScore(
 
   // Minutes consistency bonus
   const gamesOver70 = last5Minutes.filter(mins => mins >= 70).length;
-  const gamesOver60 = last5Minutes.filter(mins => mins >= 60).length;
 
   if (gamesOver70 >= 4) {
     score += 3;
-  } else if (gamesOver60 >= 3) {
-    score += 1;
+  } else {
+    const gamesOver60 = last5Minutes.filter(mins => mins >= 60).length;
+    if (gamesOver60 >= 3) {
+      score += 1;
+    }
   }
 
   return score;

@@ -69,7 +69,7 @@ export interface APIFootballPlayerStats {
       position: string;
       number: number;
       minutes: number;
-      appearences?: number;
+      appearances?: number;
     };
     goals: {
       total: number | null;

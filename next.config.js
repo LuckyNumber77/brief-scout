@@ -4,7 +4,15 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'media.api-sports.io',
+      },
+      {
+        protocol: 'https',
+        hostname: 'v1.football.sportsapipro.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.cloudinary.com',
       },
     ],
   },
